@@ -78,9 +78,62 @@ const updateProfile = async(req,res) => {
 }
 
 
-//
+//POST api/auth/change_password
+const changePassword = async(req,res) => {
+    const error = validationResult(req)
+    if(!error.isEmpty()){
+        return res.status(400).json({error: 'Password must be at least of 8 chanracter'})
+    }
+
+    try {
+        const {currentPassword, newPassword} = req.body
+        const id = req.user._id
+
+        const user = await User.findById(id).select('+password')
+
+        if(!(await user.comparePassword(currentPassword))){
+            return res.status(400).json({error: 'Current Password is Invalid'})
+        }
+
+        user.password = newPassword
+        await user.save()
+
+        res.json({message: 'Password changed successfuly'})
+    } catch (error) {
+        res.status(500).json({error: 'Error changing password'})
+    }
+}
+
+
+//POST api/auth/setup (one time admin setup)
+const setup = async(req,res) => {
+    try {
+        const existingAdmin = await User.findOne({role: 'admin'})
+        if(existingAdmin){
+            return res.status(400).json({error: 'Admin already exists'})
+        }
+
+        const {name,email,password} = req.body
+        const user = await User.create({name,email,password, role:'admin'})
+        const token= generateToken(user._id)
+
+        res.json({
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        })
+    } catch (error) {
+        res.status(500).json({error: 'Error during setup'})
+    }
+}
+
 export {
     Login,
     Profile,
     updateProfile,
+    changePassword,
+    setup
 }
