@@ -16,6 +16,7 @@ router.post('/login', [
 ], Login)
 
 router.get('/me', protect, Profile)
+
 router.put('/profile', protect , [
   body('name').optional().trim().isLength({ min: 1, max: 50 }),
   body('bio').optional().trim(),
@@ -27,3 +28,5 @@ router.post('/change-password' , protect, [
 ], changePassword)
 
 router.post('/setup', setup)
+
+export default router
