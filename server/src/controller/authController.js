@@ -19,6 +19,8 @@ const Login = async(req,res,next)=> {
 
     try {
         const {email,password} = req.body
+        console.log("user credentials" , email,password);
+        
         const user = await User.findOne({email}).select('+password')
 
         if(!user || !(await user.comparePassword(password))){
@@ -110,11 +112,17 @@ const setup = async(req,res) => {
     try {
         const existingAdmin = await User.findOne({role: 'admin'})
         if(existingAdmin){
-            return res.status(400).json({error: 'Admin already exists'})
+            return res.status(400).json({
+                user: existingAdmin,
+                error: 'Admin already exists'})
         }
 
         const {name,email,password} = req.body
+        console.log('credentials' , name,email,password);
+        
         const user = await User.create({name,email,password, role:'admin'})
+        console.log('user',user);
+        
         const token= generateToken(user._id)
 
         res.json({
@@ -126,6 +134,7 @@ const setup = async(req,res) => {
             }
         })
     } catch (error) {
+        console.error(error)
         res.status(500).json({error: 'Error during setup'})
     }
 }
