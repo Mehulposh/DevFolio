@@ -40,6 +40,7 @@ app.use(cors({
 //   message: { error: 'Too many login attempts, please try again later.' }
 // });
 
+app.use('/api/upload', uploadRoutes);
 
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
@@ -49,7 +50,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/blogs', blogRoutes);
-app.use('/api/upload', uploadRoutes);
+// app.use('/api/upload', uploadRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/portfolio', portfolioRoutes);
  
