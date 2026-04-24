@@ -1,14 +1,18 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://devfolio-1-6kpn.onrender.com/api',
-  headers: { 'Content-Type': 'application/json' }
+  baseURL: 'http://localhost:5000/api',
+  // headers: { 'Content-Type': 'application/json' }
 });
 
 // Attach token to every request
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('devfolio_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  // // 👇 IMPORTANT FIX
+  // if (!(config.data instanceof FormData)) {
+  //   config.headers['Content-Type'] = 'application/json';
+  // }
   return config;
 });
 
