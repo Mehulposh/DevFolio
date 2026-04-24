@@ -52,21 +52,43 @@ export default function ProjectsAdmin() {
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
   const setLink = (key, val) => setForm(f => ({ ...f, links: { ...f.links, [key]: val } }));
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append('image', file);
-      const res = await api.post('/upload/image', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      setForm(f => ({ ...f, coverImage: { url: res.data.url, publicId: res.data.publicId } }));
-      toast.success('Image uploaded');
-    } catch { toast.error('Upload failed'); }
-    finally { setUploading(false); }
-  };
+const handleImageUpload = async (e) => {
+  // e.stopPropagation(); // ✅ optional safety
+  const file = e.target.files[0];
+  console.log('selected image' , file);
+  
+  if (!file) return;
+
+  setUploading(true);
+
+  try {
+    const fd = new FormData();
+    fd.append('image', file);
+
+    for (let pair of fd.entries()) {
+      console.log(pair);
+    }
+    
+    console.log(fd instanceof FormData); // should be true
+    console.log("BEFORE API CALL");
+    const res = await api.post('/upload/image', fd);
+    console.log("AFTER   API CALL");
+    setForm(f => ({
+      ...f,
+      coverImage: {
+        url: res.data.url,
+        publicId: res.data.publicId
+      }
+    }));
+
+    toast.success('Image uploaded');
+  } catch (err) {
+    console.error(err);
+    toast.error('Upload failed');
+  } finally {
+    setUploading(false);
+  }
+};
 
   const handleSave = async () => {
     if (!form.title.trim() || !form.description.trim()) {
@@ -232,7 +254,7 @@ export default function ProjectsAdmin() {
                 ) : (
                   <label className="upload-btn-label">
                     {uploading ? <div className="loader" style={{ width: 14, height: 14, borderWidth: 2 }} /> : <><Upload size={14} /> Upload Image</>}
-                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageUpload} />
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e)=> handleImageUpload(e)} />
                   </label>
                 )}
               </div>
