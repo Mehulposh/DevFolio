@@ -190,6 +190,8 @@ const newBlog = async(req,res) => {
         res.status(201).json({ blog });
 
     } catch (error) {
+        console.log('new blog error' ,error);
+        
         res.status(500).json({ error: 'Error creating blog.' });
     }
 }

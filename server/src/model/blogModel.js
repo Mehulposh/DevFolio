@@ -74,32 +74,37 @@ const blogSchema = new mongoose.Schema({
 });
 
 // Auto-generate slug from title
-blogSchema.pre('save', async function(next) {
-  if (!this.isModified('title') && this.slug) return next();
+blogSchema.pre('save', async function () {
+  if (!this.isModified('title') && this.slug) return;
 
   let baseSlug = slugify(this.title, { lower: true, strict: true });
   let slug = baseSlug;
   let count = 0;
 
   while (true) {
-    const existing = await mongoose.model('Blog').findOne({ slug, _id: { $ne: this._id } });
+    const existing = await mongoose
+      .model('Blog')
+      .findOne({ slug, _id: { $ne: this._id } });
+
     if (!existing) break;
+
     count++;
     slug = `${baseSlug}-${count}`;
   }
 
   this.slug = slug;
 
-  // Auto-calculate read time (avg 200 words/min)
-  const wordCount = this.content.replace(/<[^>]+>/g, '').split(/\s+/).length;
+  // Auto-calculate read time
+  const wordCount = this.content
+    .replace(/<[^>]+>/g, '')
+    .split(/\s+/).length;
+
   this.analytics.readTime = Math.ceil(wordCount / 200);
 
-  // Set publishedAt when status changes to published
+  // Set publishedAt
   if (this.isModified('status') && this.status === 'published' && !this.publishedAt) {
     this.publishedAt = new Date();
   }
-
-  next();
 });
 
 // Indexes
