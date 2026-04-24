@@ -1,5 +1,5 @@
 import  { createContext, useContext, useState, useEffect } from 'react';
-import api from '../utils/api';
+import api from '../api/api.js';
 
 const AuthContext = createContext(null);
 
@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
     fetchMe();
     }, [token]);
   const login = async (email, password) => {
+    console.log("LOGIN CALLED");
     const res = await api.post('/auth/login', { email, password });
     const { token: newToken, user: userData } = res.data;
     localStorage.setItem('devfolio_token', newToken);
